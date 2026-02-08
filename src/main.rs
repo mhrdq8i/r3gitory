@@ -4,39 +4,32 @@ use axum::{
     routing::{delete, get, post, put},
 };
 
-// Async Handler
-// async fn — This function can pause and resume (needed for I/O)
-// Returns &'static str — Axum automatically converts this to HTTP response
-async fn hello() -> &'static str {
-    "Hello R3gitory!"
+async fn root() -> &'static str {
+    "Your are servig via Axum on port 3000"
 }
 
 async fn health() -> &'static str {
-    "You are into the health function"
+    "OK!"
 }
 
-async fn version() -> &'static str {
-    "You are into the version function"
-}
-
-async fn get_user ( Path(user_id): Path<String>) -> String {
-    format!("Getting user with ID: {}", user_id)
-}
-
-async fn get_user_post ( Path((user_id, post_id)): Path<(String, String)>) -> String {
-    format!("User {} - Post {}", user_id, post_id)
+async fn list_users() -> &'static str {
+    "Listing all users"
 }
 
 async fn create_user() -> &'static str {
-    "Create a new user"
+    "User created"
 }
 
-async fn update_user() -> &'static str {
-    "Update a user"
+async fn get_user(Path(user_id): Path<String>) -> String {
+    format!("Getting user: {}", user_id)
 }
 
-async fn delete_user() -> &'static str {
-    "Delete a user"
+async fn update_user(Path(user_id): Path<String>) -> String {
+    format!("Updated user: {}", user_id)
+}
+
+async fn delete_user(Path(user_id): Path<String>) -> String {
+    format!("Deleted user: {}", user_id)
 }
 
 // Tokio Runtime
@@ -47,13 +40,14 @@ async fn main() {
     // Router
     // Router::new() — Creates empty router
     // .route("/", get(hello)) — When GET request hits /, call hello()
-    let app = Router::new().route(
-        "/users",
-        get(get_user)
-            .post(create_user)
-            .put(update_user)
-            .delete(delete_user),
-    );
+    let app = Router::new()
+        .route("/", get(root))
+        .route("/health", get(health))
+        .route("/users", get(list_users).post(create_user))
+        .route(
+            "/users/{user_id}",
+            get(get_user).put(update_user).delete(delete_user),
+        );
     // .route("/", get(hello))
     // .route("/health", get(health))
     // .route("/version", get(version));
